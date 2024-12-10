@@ -12,6 +12,7 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -164,7 +165,7 @@ class AppActivity : Activity() {
         findViewById<ImageView>(R.id.clipper_done_button).setOnClickListener {
             val clipped = clipper.getClipped()
 
-            findViewById<AnimatedImageView>(R.id.character_avatar).setImageBitmap(clipped)
+            findViewById<AnimatedImageView>(R.id.navbar_character_avatar)?.setImageBitmap(clipped)
 
             findViewById<ViewFlipper>(R.id.clipper_flipper).displayedChild = 0
         }
@@ -312,6 +313,9 @@ class AppActivity : Activity() {
             getResponse as GetCharactersResponse
 
             val charactersList = ArrayList<String>()
+            if (charactersList.isEmpty() || charactersList[0].isEmpty())
+                return@addTask
+
             for (elem in getResponse.characters.split(" ")) {
                 charactersList.add(elem)
             }
@@ -350,6 +354,7 @@ class AppActivity : Activity() {
 
     private fun initBg() {
         val view = findViewById<VideoView>(R.id.main_layout_bg)
+        view.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE)
 
         view.setOnPreparedListener { mediaPlayer ->
             val videoRatio = mediaPlayer.videoWidth / mediaPlayer.videoHeight.toFloat()
@@ -878,7 +883,7 @@ class AppActivity : Activity() {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     val character = Character()
                     character.name = v.text.toString()
-                    character.avatar = (findViewById<ImageView>(R.id.character_avatar).drawable as BitmapDrawable).bitmap
+                    character.avatar = (findViewById<ImageView>(R.id.navbar_character_avatar).drawable as BitmapDrawable).bitmap
 
                     NetworkService.addTask(SendNewCharacterTask(character)) {
                         it as AddResponse

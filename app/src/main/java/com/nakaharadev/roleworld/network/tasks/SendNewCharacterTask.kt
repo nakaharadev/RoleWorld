@@ -23,8 +23,8 @@ class SendNewCharacterTask(private val character: Character) : AbstractTask() {
     @Throws(Exception::class)
     override fun task() {
         val character = Character()
-        character.name = character.name
-        character.avatar = character.avatar
+        character.name = this.character.name
+        character.avatar = this.character.avatar
 
         val cacheDir = GlobalVariablesContainer.get("cacheDir") as File? ?: return
 

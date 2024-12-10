@@ -5,10 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
+import android.text.method.PasswordTransformationMethod
+import android.text.method.TransformationMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -57,6 +61,7 @@ class AuthActivity : Activity() {
 
     private fun initAuthBg() {
         val view = findViewById<VideoView>(R.id.auth_bg)
+        view.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE)
 
         view.setOnPreparedListener { mediaPlayer ->
             val videoRatio = mediaPlayer.videoWidth / mediaPlayer.videoHeight.toFloat()
@@ -113,8 +118,34 @@ class AuthActivity : Activity() {
     }
 
     private fun initSignIn() {
+        var showPassword = false
+
+        findViewById<ImageView>(R.id.sign_in_show_password).setOnClickListener {
+            it as ImageView
+
+            val passwordInput = findViewById<EditText>(R.id.sign_in_password)
+
+            if (showPassword) {
+                it.setImageDrawable(getDrawable(R.drawable.show_password))
+                passwordInput.transformationMethod = PasswordTransformationMethod()
+            } else {
+                it.setImageDrawable(getDrawable(R.drawable.hide_password))
+                passwordInput.transformationMethod = object : TransformationMethod {
+                    override fun getTransformation(source: CharSequence?, view: View?): CharSequence { return source ?: "" }
+                    override fun onFocusChanged(view: View?, sourceText: CharSequence?, focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {}
+                }
+            }
+
+            passwordInput.setSelection(passwordInput.length())
+
+            showPassword = !showPassword
+        }
+
         findViewById<EditText>(R.id.sign_in_password).setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val email =  findViewById<EditText>(R.id.sign_in_email).text.toString()
+                val password = v.text.toString()
+
                 findViewById<LinearLayout>(R.id.auth_load_indicator).visibility = View.VISIBLE
                 val loadBar = findViewById<ImageView>(R.id.auth_load_bar)
                 if (loadBar.drawable is Animatable) {
@@ -122,8 +153,8 @@ class AuthActivity : Activity() {
                 }
 
                 val request = AuthRequest.SignIn(
-                    findViewById<EditText>(R.id.sign_in_email).text.toString(),
-                    v.text.toString()
+                    email,
+                    password
                 )
 
                 NetworkService.addTask(AuthTask(AuthTask.SIGN_IN_MODE, request)) {
@@ -147,14 +178,14 @@ class AuthActivity : Activity() {
                         UserData.id = it.userId
 
                         if (it.showId.isEmpty()) {
-                            UserData.showId = it.showId
-                        } else {
                             UserData.showId = UserData.id
+                        } else {
+                            UserData.showId = it.showId
                         }
 
                         UserData.nickname = it.nickname
-                        UserData.password = findViewById<EditText>(R.id.sign_in_password).text.toString()
-                        UserData.email = findViewById<EditText>(R.id.sign_in_email).text.toString()
+                        UserData.password = password
+                        UserData.email = email
 
                         loadUserAvatar()
                         runOnUiThread { finishAuth() }
@@ -167,6 +198,50 @@ class AuthActivity : Activity() {
     }
 
     private fun initSignUp() {
+        var showPassword = false
+        var showPasswordRepeat = false
+
+        findViewById<ImageView>(R.id.sign_up_show_password).setOnClickListener {
+            it as ImageView
+
+            val passwordInput = findViewById<EditText>(R.id.sign_up_password)
+
+            if (showPassword) {
+                it.setImageDrawable(getDrawable(R.drawable.show_password))
+                passwordInput.transformationMethod = PasswordTransformationMethod()
+            } else {
+                it.setImageDrawable(getDrawable(R.drawable.hide_password))
+                passwordInput.transformationMethod = object : TransformationMethod {
+                    override fun getTransformation(source: CharSequence?, view: View?): CharSequence { return source ?: "" }
+                    override fun onFocusChanged(view: View?, sourceText: CharSequence?, focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {}
+                }
+            }
+
+            passwordInput.setSelection(passwordInput.length())
+
+            showPassword = !showPassword
+        }
+
+        findViewById<ImageView>(R.id.sign_up_show_repeat_password).setOnClickListener {
+            it as ImageView
+
+            val passwordInput = findViewById<EditText>(R.id.sign_up_repeat_password)
+
+            if (showPasswordRepeat) {
+                it.setImageDrawable(getDrawable(R.drawable.show_password))
+                passwordInput.transformationMethod = PasswordTransformationMethod()
+            } else {
+                it.setImageDrawable(getDrawable(R.drawable.hide_password))
+                passwordInput.transformationMethod = object : TransformationMethod {
+                    override fun getTransformation(source: CharSequence?, view: View?): CharSequence { return source ?: "" }
+                    override fun onFocusChanged(view: View?, sourceText: CharSequence?, focused: Boolean, direction: Int, previouslyFocusedRect: Rect?) {}
+                }
+            }
+
+            passwordInput.setSelection(passwordInput.length())
+
+            showPasswordRepeat = !showPasswordRepeat
+        }
         findViewById<EditText>(R.id.sign_up_repeat_password).setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 findViewById<LinearLayout>(R.id.auth_load_indicator).visibility = View.VISIBLE
@@ -206,7 +281,7 @@ class AuthActivity : Activity() {
                     UserData.password
                 )
 
-                NetworkService.addTask(AuthTask(AuthTask.SIGN_IN_MODE, request)) {
+                NetworkService.addTask(AuthTask(AuthTask.SIGN_UP_MODE, request)) {
                     it as AuthResponse
 
                     if (it.status == 506) {
