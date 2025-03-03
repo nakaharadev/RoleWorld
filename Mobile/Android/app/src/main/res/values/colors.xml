@@ -2,6 +2,7 @@
 <resources>
     <!-- BACKGROUND -->
     <color name="window_background">#121212</color>
+    <color name="window_background_transparent">#99121212</color>
     <color name="dark_gray">#212223</color>
 
     <!-- MAIN UI -->
@@ -10,7 +11,10 @@
 
     <!-- TEXT -->
     <color name="text">#EEEEEE</color>
+    <color name="hint">#CCCCCC</color>
+    <color name="dark_hint">#AAAAAA</color>
 
     <!-- OTHER -->
     <color name="transparent">#00000000</color>
+    <color name="red">#FF0000</color>
 </resources>

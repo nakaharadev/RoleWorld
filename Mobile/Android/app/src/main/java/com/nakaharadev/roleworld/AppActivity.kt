@@ -11,8 +11,6 @@ import com.nakaharadev.roleworld.fragment.AuthFragment
 import java.io.File
 
 class AppActivity : FragmentActivity() {
-    private lateinit var backgroundMediaPlayer: MediaPlayer
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -22,49 +20,6 @@ class AppActivity : FragmentActivity() {
             initialLaunch()
         } else {
             Config.load(getConfigFile())
-        }
-
-        prepareWindowBackground()
-        //findViewById<VideoView>(R.id.auth_bg).start()
-    }
-
-    override fun onStart() {
-        //findViewById<VideoView>(R.id.auth_bg).start()
-
-        super.onStart()
-    }
-
-    private fun prepareWindowBackground() {
-        val view = findViewById<VideoView>(R.id.auth_bg)
-        view.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE)
-
-        view.setOnPreparedListener { mediaPlayer ->
-            backgroundMediaPlayer = mediaPlayer
-
-            val videoRatio = backgroundMediaPlayer.videoWidth /
-                    backgroundMediaPlayer.videoHeight.toFloat()
-
-            val screenRatio = view.width / view.height.toFloat()
-            val scaleX = videoRatio / screenRatio
-            if (scaleX >= 1f) {
-                view.scaleX = scaleX
-            } else {
-                view.scaleY = 1f / scaleX
-            }
-
-            backgroundMediaPlayer.start()
-            backgroundMediaPlayer.pause()
-        }
-
-        val uri = Uri.parse("android.resource://" + packageName + "/" + R.raw.dark_background)
-        view.setVideoURI(uri)
-        view.setOnCompletionListener {
-            view.start()
-        }
-
-        AuthFragment.onSetBackgroundModeCallback = {
-            if (it == "video")
-                backgroundMediaPlayer.start()
         }
     }
 
