@@ -7,17 +7,20 @@ import java.io.FileReader
 import java.io.FileWriter
 
 object Config {
-    var userName = ""
+    var nickname = ""
     var id = ""
-    var showId = ""
+    var theme = ""
+    var lang = ""
 
     fun load(file: File) {
         val reader = FileReader(file)
 
         val json = JSONObject(reader.readText())
-        userName = json.getString("userName")
-        id = json.getString("userName")
-        showId = json.getString("showId")
+
+        nickname = json.getString("nickname")
+        id = json.getString("id")
+        theme = json.getString("theme")
+        lang = json.getString("lang")
     }
 
     fun write(file: File) {
@@ -28,9 +31,10 @@ object Config {
 
     override fun toString(): String {
         return json(
-            "userName" to userName,
+            "nickname" to nickname,
             "id" to id,
-            "showId" to showId
+            "theme" to theme,
+            "lang" to lang,
         ).toString(4)
     }
 }

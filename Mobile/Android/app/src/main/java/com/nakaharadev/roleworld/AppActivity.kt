@@ -1,32 +1,57 @@
 package com.nakaharadev.roleworld
 
-import android.media.AudioManager
-import android.media.MediaPlayer
-import android.net.Uri
+import android.content.Intent
 import android.os.Bundle
-import android.widget.VideoView
+import android.widget.ViewFlipper
 import androidx.fragment.app.FragmentActivity
 import com.nakaharadev.roleworld.config.Config
 import com.nakaharadev.roleworld.fragment.AuthFragment
+import com.nakaharadev.roleworld.service.NetworkService
 import java.io.File
 
 class AppActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        startService(Intent(this, NetworkService::class.java))
+
         setContentView(R.layout.app)
 
-        if (!configIsExists()) {
-            initialLaunch()
+        Config.load(getConfigFile())
+        startGreeting()
+
+        /*if (configIsExists()) {
+            startApp()
         } else {
-            Config.load(getConfigFile())
+            initialStart()
+        }*/
+    }
+
+    private fun initialStart() {
+        AuthFragment.onAuthCallback = {
+            Config.nickname = it.nickname
+            Config.id = it.id
+            Config.theme = it.theme
+            Config.lang = it.lang
+
+            Config.write(getConfigFile())
+
+            if (it.mode == "sign_in") {
+                startApp()
+            } else {
+                startGreeting()
+            }
         }
     }
 
-    private fun initialLaunch() {
-        AuthFragment.onAuthCallback = {
+    private fun startGreeting() {
+        findViewById<ViewFlipper>(R.id.app_initial_flipper).displayedChild = 1
 
-        }
+        //Config.write(getConfigFile())
+    }
+
+    private fun startApp() {
+        findViewById<ViewFlipper>(R.id.app_initial_flipper).displayedChild = 2
     }
 
     /**
@@ -36,12 +61,7 @@ class AppActivity : FragmentActivity() {
      */
     private fun configIsExists(): Boolean {
         try {
-            val file = getConfigFile()
-            if (file.exists()) return true
-
-            file.createNewFile()
-
-            return false
+            return getConfigFile().exists()
         } catch (e: Exception) {
             e.printStackTrace()
 

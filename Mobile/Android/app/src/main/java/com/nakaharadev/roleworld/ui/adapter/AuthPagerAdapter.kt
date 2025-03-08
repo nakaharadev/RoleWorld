@@ -6,7 +6,7 @@ import com.nakaharadev.roleworld.R
 import com.nakaharadev.roleworld.fragment.SignInFragment
 import com.nakaharadev.roleworld.fragment.SignUpFragment
 
-class AuthPagerAdapter(fragment: Fragment, private val fragmentCallback: (String) -> Unit) : FragmentStateAdapter(fragment) {
+class AuthPagerAdapter(fragment: Fragment, private val fragmentCallback: (String, Any?) -> Unit) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int {
         return 2
     }

@@ -11,5 +11,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:name="com.nakaharadev.roleworld.fragment.AuthFragment"/>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/greeting_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.nakaharadev.roleworld.fragment.GreetingFragment"/>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/app_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.nakaharadev.roleworld.fragment.AppFragment"/>
     </ViewFlipper>
 </RelativeLayout>

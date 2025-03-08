@@ -13,6 +13,10 @@ import android.widget.Toast
 import androidx.transition.Visibility
 import androidx.viewpager2.widget.ViewPager2
 import com.nakaharadev.roleworld.R
+import com.nakaharadev.roleworld.network.data.request.AuthRequest
+import com.nakaharadev.roleworld.network.data.response.AuthResponse
+import com.nakaharadev.roleworld.network.task.AuthTask
+import com.nakaharadev.roleworld.service.NetworkService
 import com.nakaharadev.roleworld.ui.adapter.AuthPagerAdapter
 import com.nakaharadev.roleworld.util.IOnKeyboardVisibilityListener
 
@@ -60,8 +64,34 @@ class AuthFragment : DefaultFragment(R.layout.auth_layout), IOnKeyboardVisibilit
     private fun initPager() {
         val viewPager = findViewById<ViewPager2>(R.id.auth_pager)
 
-        pagerAdapter = AuthPagerAdapter(this) {
+        pagerAdapter = AuthPagerAdapter(this) { it, obj ->
             when (it) {
+                "sign_in" -> {
+                    obj as HashMap<String, String>
+
+                    onAuthCallback(
+                        AuthSettingsSet(
+                            it,
+                            obj["nickname"]!!,
+                            obj["id"]!!,
+                            "default",
+                            "ru"
+                        )
+                    )
+                }
+                "sign_up" -> {
+                    obj as HashMap<String, String>
+
+                    onAuthCallback(
+                        AuthSettingsSet(
+                            it,
+                            obj["nickname"]!!,
+                            obj["id"]!!,
+                            "default",
+                            "ru"
+                        )
+                    )
+                }
                 "to_sign_in" -> {
                     Log.i("PagerAdapterCallback", it)
                     viewPager.currentItem = 0
@@ -80,9 +110,9 @@ class AuthFragment : DefaultFragment(R.layout.auth_layout), IOnKeyboardVisibilit
         lateinit var onAuthCallback: (settingsSet: AuthSettingsSet) -> Unit
 
         data class AuthSettingsSet(
-            val userName: String,
-            val email: String,
-            val password: String,
+            val mode: String,
+            val nickname: String,
+            val id: String,
             val theme: String,
             val lang: String
         )

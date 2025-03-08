@@ -36,7 +36,25 @@ android {
 }
 
 dependencies {
+    // Splash
     implementation(libs.androidx.core.splashscreen)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+
+    // Logger
+    implementation(libs.logging.interceptor)
+
+    // Coil
+    implementation(libs.coil.compose)
+
+    // RxJava
+    compileOnly(libs.rxkotlin)
+
+    // Preferences
+    implementation(libs.androidx.preference)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

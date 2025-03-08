@@ -24,12 +24,26 @@
                 android:textColor="@color/text"
                 android:textFontWeight="700"
                 android:textSize="27sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/dark_hint"
-                android:text="Заполни, пожалуйста, все поля"/>
+            <ViewFlipper
+                android:id="@+id/sign_up_error_flipper"
+                android:inAnimation="@anim/auth_error_flipper_in"
+                android:outAnimation="@anim/auth_error_flipper_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/dark_hint"
+                    android:text="Заполни, пожалуйста, все поля"/>
+                <TextView
+                    android:id="@+id/sign_up_error_msg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/red"
+                    android:textFontWeight="700"/>
+            </ViewFlipper>
         </LinearLayout>
         <com.nakaharadev.roleworld.ui.AuthInputView
             android:id="@+id/sign_up_nickname_input"

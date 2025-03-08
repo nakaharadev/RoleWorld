@@ -3,14 +3,19 @@ package com.nakaharadev.roleworld.ui
 import android.animation.ValueAnimator
 import com.nakaharadev.roleworld.R
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.text.InputType
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.widget.EditText
+import androidx.core.content.ContextCompat
 
 
 class AuthInputView
@@ -79,6 +84,15 @@ constructor(
     /* error data */
     private var errorAutoClear = false
 
+    private var onInputCallback: () -> Unit = {}
+
+    /* password visibility */
+    private var isPasswordInput = false
+    private var passwordIsVisible = false
+    private var passwordVisibilityIconRect = Rect()
+    private val passwordVisibilityShow: Drawable
+    private val passwordVisibilityHide: Drawable
+
     init {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.AuthInputView)
 
@@ -89,6 +103,9 @@ constructor(
 
         setBackgroundResource(R.drawable.auth_input_background)
 
+        passwordVisibilityShow = resources.getDrawable(R.drawable.show_password)
+        passwordVisibilityHide = resources.getDrawable(R.drawable.hide_password)
+
         hintPaint.color = resources.getColor(R.color.hint)
         hintPaint.textSize = textSize
     }
@@ -98,6 +115,10 @@ constructor(
         errorAutoClear = autoClear
 
         animateIconColor(resources.getColor(R.color.dark_hint), resources.getColor(R.color.red))
+    }
+
+    fun setOnInputCallback(callback: () -> Unit) {
+        onInputCallback = callback
     }
 
     override fun setText(text: CharSequence?, type: BufferType?) {
@@ -126,6 +147,34 @@ constructor(
 
             animateIconColor(resources.getColor(R.color.red), resources.getColor(R.color.dark_hint))
         }
+
+        if (onInputCallback != null)
+            onInputCallback()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if (
+                    event.x > passwordVisibilityIconRect.left &&
+                    event.y > passwordVisibilityIconRect.top &&
+                    event.x < passwordVisibilityIconRect.right &&
+                    event.y < passwordVisibilityIconRect.bottom
+                ) {
+                    inputType = if (!passwordIsVisible) {
+                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
+                    } else {
+                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    }
+                    passwordIsVisible = !passwordIsVisible
+                    invalidate()
+
+                    return true
+                }
+            }
+        }
+
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -139,6 +188,13 @@ constructor(
                     hintPos
             )
 
+            if (inputType and (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD) != 1) {
+                isPasswordInput = true
+                setPadding(paddingLeft, paddingTop, 50.dp, paddingBottom)
+            }
+
+            passwordVisibilityIconRect = Rect(width - 35.dp, 27.dp, width - 10.dp, height - 7.dp)
+
             isInitiated = true
         }
 
@@ -149,6 +205,26 @@ constructor(
 
         icon?.setBounds(10.dp, 25.dp, 40.dp, height - 5.dp)
         icon?.draw(canvas)
+
+        if (isPasswordInput) {
+            if (passwordIsVisible) {
+                passwordVisibilityHide.setBounds(
+                    passwordVisibilityIconRect.left,
+                    passwordVisibilityIconRect.top,
+                    passwordVisibilityIconRect.right,
+                    passwordVisibilityIconRect.bottom
+                )
+                passwordVisibilityHide.draw(canvas)
+            } else {
+                passwordVisibilityShow.setBounds(
+                    passwordVisibilityIconRect.left,
+                    passwordVisibilityIconRect.top,
+                    passwordVisibilityIconRect.right,
+                    passwordVisibilityIconRect.bottom
+                )
+                passwordVisibilityShow.draw(canvas)
+            }
+        }
 
         canvas.drawText(hint, hintPosAnimated.x, hintPosAnimated.y, hintPaint)
     }
